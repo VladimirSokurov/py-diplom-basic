@@ -2,30 +2,51 @@ import requests
 import time
 import configparser
 
-config = configparser.ConfigParser()
-config.read("settings.ini")
-token = config["vk"]["token"]
+
+def vk_token():
+    config = configparser.ConfigParser()
+    config.read("settings.ini")
+    vk_token = config["vk"]["token"]
+    return vk_token
+
+
+def screen_name():
+    token = vk_token()
+    url = 'https://api.vk.com/method/users.get'
+    params = {'access_token': token,
+              'user_ids': input('Введите имя или id пользователя vk\n'),
+              'v': '5.131'
+              }
+    res = requests.get(url=url, params=params)
+    screen_n = res.json()['response'][0]['id']
+    return screen_n
+
+
+def numbers_of_photos():
+    numbers = input('Введите количество загружаемых фотографий\n')
+    return str(numbers)
+
 
 class VkPhotos:
     def __init__(self, user_id: str):
         self.user_id = user_id
+        self.numbers = numbers_of_photos()
 
     def res(self):
         '''
         returns a list with user photos;
         need to put a vk token to dir file "token.txt"
         '''
-        with open('token.txt') as file_obj:
-            token = file_obj.read().strip()
-        URL = 'https://api.vk.com/method/photos.get'
+        token = vk_token()
+        url = 'https://api.vk.com/method/photos.get'
         params = {'owner_id': self.user_id,
                   'album_id': 'profile',
                   'extended': '1',
                   'access_token': token,
                   'v': '5.131',
-                  'count': '5'
+                  'count': self.numbers
                   }
-        res = requests.get(url=URL, params=params)
+        res = requests.get(url=url, params=params)
         photos_list = res.json()['response']['items']
         return photos_list
 

@@ -1,6 +1,7 @@
 import requests
 import configparser
 
+
 def ya_disk_token():
     config = configparser.ConfigParser()
     config.read("settings.ini")
